@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+    name: order
+    labels:
+        app: order-app
+        type: order-backend
+spec: 
+    replicas: 1
+    selector: 
+        matchLabels:
+            app: order-pod-app
+    template: 
+        metadata: 
+            name: order-pod
+            labels:  
+                app: order-pod-app
+                type: order-backend-pod
+        spec: 
+             containers:
+                  - name: order-pod
+                    image: itlogiclab-restaurant-order:1.0.0
+                    imagePullPolicy: IfNotPresent
+                    resources:   
+                        limits: 
+                            memory: "128Mi"
+                            cpu: "1"                                 
+                        requests:
+                            memory: "128Mi"
+                            cpu: "1"            
+                    env:
+                       - name: SPRING_DATASOURCE_URL
+                         value: "jdbc:mysql://mysql-order-service:3306/orderdb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false"
+                       - name: SPRING_DATASOURCE_USERNAME
+                         value: cpandey
+                       - name: SPRING_DATASOURCE_PASSWORD
+                         value: chandan@1234                                            
+                                                                           
+                    ports: 
+                       - name: http
+                         protocol: TCP
+                         containerPort: 20002
+---
+apiVersion: v1
+kind: Service
+metadata: 
+    name: order-service
+spec: 
+    selector: 
+        app: order-pod-app
+    type: NodePort                      
+    ports:
+       - targetPort: 20002  ## PORT OF POD: PORT ON WHICH APP IS RUNNING
+         port: 80  ## PORT OF SERVICE, DEFAULT 80. NEED TO CHECK HOW TO CHANGE IT.
+         nodePort: 30003 # PORT WHERE AOO IS ACCESSIBLE:  Range: 30000 to 32767
+    clusterIP: 10.101.102.103  # NEED TO CHECK WHAT IS THIS ???    
+    

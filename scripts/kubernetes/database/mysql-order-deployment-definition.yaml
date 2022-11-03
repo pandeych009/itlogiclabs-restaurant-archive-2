@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Service
+metadata: 
+    name: mysql-order-service
+    labels: ##Labels that will be applied to the resource
+        app: mysql-order-service-app
+spec: 
+    ports: 
+      - port: 3306
+        targetPort: 3306
+    clusterIP: None  #This is also termed as Headless service, where ClusterId is NOne...
+    selector:  ##SELECT ANY POD WITH LABEL mysql-app AND OPTIONAL TIER
+        app: mysql-app
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata: 
+    name: mysql-order-pv
+    labels: 
+       app: mysql-order-pv-app 
+spec: 
+    storageClassName: standard
+    capacity: 
+        storage: 256Mi
+    accessModes: 
+        - ReadWriteOnce
+    hostPath: 
+        path: "/Users/cpandey/dev/docker-data/restaurant/k8/mysql-order" #LOCAL PATH TO THE SYSTEM 
+    persistentVolumeReclaimPolicy: Retain
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: 
+    name: mysql-order-pvc
+    labels: 
+       app: mysql-order-pvc-app
+    
+spec: 
+    storageClassName: standard
+    accessModes:
+        - ReadWriteOnce
+    resources: 
+        requests:
+           storage: 250Mi 
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+    name: mysql-order-init-script
+data:
+    init-script.sql:  |
+        CREATE DATABASE IF NOT EXISTS orderdb;
+        USE orderdb;
+        CREATE TABLE address (id bigint NOT NULL, city varchar(255), country varchar(255), line1 varchar(255), line2 varchar(255), STATE varchar(255), PRIMARY KEY (id)) engine=InnoDB;
+        CREATE TABLE hibernate_sequence (next_val bigint) engine=InnoDB;
+        INSERT INTO hibernate_sequence VALUES ( 1 );
+        CREATE TABLE orders (id bigint NOT NULL, order_date varchar(255), order_time varchar(255), status integer, delivery_address_id bigint, PRIMARY KEY (id)) engine=InnoDB;
+        ALTER TABLE orders ADD CONSTRAINT order_fk FOREIGN KEY (delivery_address_id) REFERENCES address (id);
+         
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+    name: mysql-order-server
+    labels:   ##label for the deployment
+        app: mysql-order-server-app
+spec: 
+    selector: 
+        matchLabels: ##This deployment applies to the Pods matching the specified labels
+            app: mysql-order-pod-app
+
+    serviceName: mysql-h  #Headless Service Name #Master DNS Become: mysql-0.mysql-h.default.svc.cluster.local, mysql-1.mysql-h.default.svccluster.lcoal
+    replicas: 1
+    template: 
+        metadata: 
+            name: mysql-order-pod
+            labels: 
+                app: mysql-order-pod-app
+        spec: 
+            containers: 
+                - name: mysql-container
+                  image: mysql:5.7
+                  imagePullPolicy: IfNotPresent
+                  args:
+                    - "--ignore-db-dir=lost+found"
+                  ports:
+                    - containerPort: 3306
+                  env:
+                    - name: MYSQL_ROOT_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: restaurant-app-secret
+                          key: rootpassword
+                    - name: MYSQL_USER
+                      valueFrom: 
+                        secretKeyRef: 
+                           name: restaurant-app-secret
+                           key: username
+                    - name: MYSQL_PASSWORD
+                      valueFrom: 
+                        secretKeyRef: 
+                            name: restaurant-app-secret
+                            key: password
+                    - name: MYSQL_DATABASE
+                      valueFrom: 
+                        secretKeyRef: 
+                            name: mysql-db-url
+                            key: order-database
+                  volumeMounts: 
+                    - name: mysql-initdb ##MOUNT PATH FOR INITIAL SCRIPT TO RUN ON DB
+                      mountPath: /docker-entrypoint-initdb.d
+                    - name: mysql-server-storage
+                      mountPath: /var/lib/mysql
+            volumes:
+                - name: mysql-initdb
+                  configMap: 
+                    name: mysql-order-init-script      
+                - name: mysql-server-storage
+                  persistentVolumeClaim: 
+                      claimName:  mysql-order-pvc
+
+ 
+##DNS Entry {Headless Ref} is created only in 2 condition: 
+# spec section of the POD have 2 optional conf: subdomain, which shouldbe equal to name of service (mysql-h). It create subdomain: mysql-h.default.svc.cluster.lcoal
+##StatefulSet does not require the above condition. 
+## second: define hostname: as mysql-pod

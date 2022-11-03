@@ -1,0 +1,8 @@
+apiVersion: extension/v1beta1
+kind: Ingress
+metadata:
+    name: ingress-order
+spec: 
+    backend: ## Single backend need no rules.
+        serviceName: order-service  ## Traffic to be routed to which service: 
+        servicePort: 8080    ## port of service

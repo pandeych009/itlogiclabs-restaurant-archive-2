@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-host-based
+  namespace: ckad-test
+  #annotations:
+   # nginx.ingress.kubernetes.io/rewrite-target: /
+
+spec:
+     rules: 
+       - host: billing.itlogiclab-api.com
+         http: 
+           paths: 
+             - path: "/billing/kube/"
+               pathType: Prefix
+               backend: 
+                 service: 
+                    name: billing-kube-service
+                    port: 
+                      number: 20002 ##Port of the container
+       - host: order.itlogiclab-api.com
+         http:
+           paths: 
+             - path: "/order/kube/"
+               pathType: Prefix
+               backend: 
+                  service: 
+                     name: order-kube-service
+                     port:
+                       number: 20001

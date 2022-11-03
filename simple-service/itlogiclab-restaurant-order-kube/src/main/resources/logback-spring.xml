@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="BASE_LOG_LOC" value="/Users/cpandey/logs/multimoduleprojects/restaurant/logs" />
+    <property name="ARCHIVE_LOG_LOC" value="${BASE_LOG_LOC}/archived" />
+    <property name="LOG_FILE_NAME" value="itlogiclab-restaurant-order.log" />
+    <property name="ARCHIVE_FILE_NAME" value="itlogiclab-restaurant-order-%d{yyyy-MM-dd}.%i.log" />
+    
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${BASE_LOG_LOC}/${LOG_FILE_NAME}</file>
+       		 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>${ARCHIVE_LOG_LOC}/${ARCHIVE_FILE_NAME}</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+    
+    <!-- LOG everything at INFO level -->
+    <root level="DEBUG">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </root>
+
+    <!-- LOG "com.baeldung*" at TRACE level -->
+    <logger name="com.itlogiclab.order" level="DEBUG" additivity="false">
+        <appender-ref ref="RollingFile" />
+        <!-- <appender-ref ref="Console" /> -->
+        <appender-ref ref="Console" />
+    </logger>
+       
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="RollingFile" />
+        <!-- <appender-ref ref="Console" /> -->
+        <appender-ref ref="Console" />
+    </logger>   
+    
+
+</configuration>

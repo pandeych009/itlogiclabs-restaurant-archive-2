@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata: 
+    name: order-replicaset
+    labels: 
+        app: order-replicaset-app
+spec: 
+    replicas: 1
+    selector:
+      matchLabels:
+        app: order-pod-v1-app
+    template: 
+       metadata:
+         name: order-pod-v1
+         namespace: dev-ns 
+         labels: 
+            app: order-pod-v1-app
+       spec: 
+          containers: 
+            - name: order-pod-v1
+              image: itlogiclab-restaurant-order:1.0.0
+              imagePullPolicy: IfNotPresent
+              ports:
+                 - name: http
+                   protocol: TCP
+                   containerPort: 20002
+              env: 
+                  - name: SPRING_DATASOURCE_URL
+                    value: "jdbc:mysql://mysql-order-service:3306/orderdb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false"
+                  - name: SPRING_DATASOURCE_USERNAME
+                    value: cpandey
+                  - name: SPRING_DATASOURCE_PASSWORD
+                    value: chandan@1234

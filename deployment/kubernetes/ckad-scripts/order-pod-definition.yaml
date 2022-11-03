@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata: 
+    name: order-kube-pod
+    namespace: ckad-test
+    labels: 
+        app: order-kube-pod-app
+        type: order-test-api-pod
+spec: 
+    containers: 
+        - name: order-kube-pod
+          image: itlogiclab-restaurant-order-kube:1.0.1
+          imagePullPolicy: IfNotPresent
+          ports: 
+             - name: http
+               containerPort: 20001
+               protocol: TCP
+          livenessProbe: 
+              httpGet: 
+                  path: /actuator/health
+                  port: 20001
+              initialDelaySeconds: 3
+              periodSeconds: 3 
+          readinessProbe: 
+              httpGet: 
+                  path: /actuator/health
+                  port: 20001
+              initialDelaySeconds: 3 
+              periodSeconds: 3   

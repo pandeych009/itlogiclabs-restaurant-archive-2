@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+    name: ingress-order-routing-rules
+    namespace: ckad-test
+spec: 
+    rules: 
+        - host: "order.itlogiclab.com"
+          http: 
+            paths: 
+                - backend: 
+                    serviceName: order-kube-service
+                    servicePort: 30001
+        - host: kube.itlogiclab.com
+          http: 
+            paths: 
+                - backend: 
+                    serviceName: billing-kube-service
+                    servicePort:  30002

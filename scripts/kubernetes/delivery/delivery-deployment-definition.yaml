@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+    name: delivery
+    labels: 
+        app: delivery-app
+        type: delivery-backend
+spec: 
+    replicas: 1
+    selector: 
+       matchLabels:
+        app: delivery-pod
+        type: delivery-backend-pod
+    template: 
+        metadata: 
+            name: delivery-pod
+            labels: 
+                app: delivery-pod
+                type: delivery-backend-pod
+        spec: 
+            containers: 
+              - name: delivery-container
+                image: itlogiclabs-restaurant-delivery:1.0.0
+                resources: 
+                    limits: 
+                        cpu: 1
+                        memory: "128Mi"
+                    requests:
+                        cpu: 1
+                        memory: "128Mi"
+                env: 
+                  - name: SPRING_DATASOURCE_URL
+                    valueFrom:
+                       secretKeyRef: 
+                          name: mysql-db-url
+                          key: delivery-url
+
+                  - name: SPRING_DATASOURCE_USERNAME
+                    valueFrom:
+                       secretKeyRef: 
+                          name: restaurant-app-secret
+                          key: username
+
+                  - name: SPRING_DATASOURCE_PASSWORD
+                    valueFrom:
+                       secretKeyRef: 
+                          name: restaurant-app-secret
+                          key: password
+
+                  - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+                    value: com.mysql.cj.jdbc.Driver
+                  
+                imagePullPolicy: IfNotPresent
+                ports: 
+                    - name: httpport
+                      containerPort: 20001 
+                      protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+    name: delivery-service
+spec: 
+    type: NodePort
+    ports:
+        - targetPort: 8080
+          port: 20001
+          nodePort: 30003
+    clusterIP: 10.101.102.103
+    selector:
+        app: delivery-pod
+        type: delivery-backend-type     

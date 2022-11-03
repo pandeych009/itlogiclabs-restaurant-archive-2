@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: Service
+metadata: 
+    name: mysql-bill-service
+    labels: ##Labels that will be applied to the resource
+        app: mysql-service-app
+spec: 
+    ports: 
+      - port: 3306
+        targetPort: 3306
+    clusterIP: None  #This is also termed as Headless service, where ClusterId is NOne...
+    selector:  ##SELECT ANY POD WITH LABEL mysql-app AND OPTIONAL TIER
+        app: mysql-app
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata: 
+    name: mysql-bill-pv
+    labels: 
+       app: mysql-pv-app 
+spec: 
+    storageClassName: standard
+    capacity: 
+        storage: 256Mi
+    accessModes: 
+        - ReadWriteOnce
+    hostPath: 
+        path: "/Users/cpandey/dev/docker-data/restaurant/k8/mysql-billdb" #LOCAL PATH TO THE SYSTEM 
+    persistentVolumeReclaimPolicy: Retain
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: 
+    name: mysql-bill-pvc
+    labels: 
+       app: mysql-bill-pvc-app
+    
+spec: 
+    storageClassName: standard
+    accessModes:
+        - ReadWriteOnce
+    resources: 
+        requests:
+           storage: 250Mi 
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+    name: mysql-init-script
+data:
+    init-script.sql:  |
+        CREATE DATABASE IF NOT EXISTS billdb;
+        USE billdb;
+        CREATE TABLE bill_info (bill_info_id BIGINT NOT NULL, charge_cost FLOAT, charge_name varchar(255), invoice_no BIGINT NOT NULL, primary key (bill_info_id)) engine=InnoDB;
+        CREATE TABLE billing (bill_id BIGINT NOT NULL, bill_amt FLOAT, cust_id BIGINT, date varchar(255), invoice_no varchar(255), order_id BIGINT, status varchar(255), primary key (bill_id)) engine=InnoDB;
+        CREATE TABLE hibernate_sequence (next_val BIGINT) engine=InnoDB;
+        INSERT INTO hibernate_sequence values ( 1 );
+        ALTER TABLE bill_info ADD constraint BILL_INFO_FK foreign key (invoice_no) references billing (bill_id);
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+    name: mysql-bill-server
+    labels:   ##label for the deployment
+        app: mysql-bill-app
+spec: 
+    selector: 
+        matchLabels: ##This deployment applies to the Pods matching the specified labels
+            app: mysql-bill-pod-app
+
+    serviceName: mysql-h  #Headless Service Name #Master DNS Become: mysql-0.mysql-h.default.svc.cluster.local, mysql-1.mysql-h.default.svccluster.lcoal
+    replicas: 1
+    template: 
+        metadata: 
+            name: mysql-bill-pod
+            labels: 
+                app: mysql-bill-pod-app
+        spec: 
+            containers: 
+                - name: mysql-container
+                  image: mysql:5.7
+                  imagePullPolicy: IfNotPresent
+                  args:
+                    - "--ignore-db-dir=lost+found"
+                  ports:
+                    - containerPort: 3306
+                  env:
+                    - name: MYSQL_ROOT_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: restaurant-app-secret
+                          key: rootpassword
+                    - name: MYSQL_USER
+                      valueFrom: 
+                        secretKeyRef: 
+                           name: restaurant-app-secret
+                           key: username
+                    - name: MYSQL_PASSWORD
+                      valueFrom: 
+                        secretKeyRef: 
+                            name: restaurant-app-secret
+                            key: password
+                    - name: MYSQL_HOST
+                      valueFrom:
+                         secretKeyRef: 
+                             name: mysql-db-url
+                             key:  bill-database                      
+                  volumeMounts: 
+                    - name: mysql-initdb ##MOUNT PATH FOR INITIAL SCRIPT TO RUN ON DB
+                      mountPath: /docker-entrypoint-initdb.d
+                    - name: mysql-server-storage
+                      mountPath: /var/lib/mysql
+            volumes:
+                - name: mysql-initdb
+                  configMap: 
+                    name: mysql-init-script       
+                - name: mysql-server-storage
+                  persistentVolumeClaim: 
+                      claimName:  mysql-bill-pvc
+
+ 
+##DNS Entry {Headless Ref} is created only in 2 condition: 
+# spec section of the POD have 2 optional conf: subdomain, which shouldbe equal to name of service (mysql-h). It create subdomain: mysql-h.default.svc.cluster.lcoal
+##StatefulSet does not require the above condition. 
+## second: define hostname: as mysql-pod

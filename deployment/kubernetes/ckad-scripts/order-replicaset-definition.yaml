@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+    name: order-kube-replicaset
+spec: 
+    replicas: 1
+    selector: 
+       matchLabels: 
+        app: order-kube-pod-app
+        type: order-test-api-pod
+    template: 
+        metadata:
+            name: order-kube-rs-pod
+            namsespace: order-ns
+            labels: 
+              app: order-kube-pod-app
+              type: order-test-api-pod
+        spec : 
+         containers: 
+           - name: order-kube-pod
+             image: itlogiclab-restaurant-order-kube:1.0.1
+             imagePullPolicy: IfNotPresent
+             livenessProbe: 
+                    httpGet: 
+                         path: /actuator/health
+                         port: 20001
+                    initialDelaySeconds: 4
+                    periodSeconds: 4
+             readinessProbe:        
+                     httpGet:
+                          path: /actuator/health
+                          port: 20001
+                     initialDelaySeconds: 10
+                     periodSeconds: 10
+             ports: 
+                 - name: http
+                   containerPort: 20001
+                   protocol: TCP                            

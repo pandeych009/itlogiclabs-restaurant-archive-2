@@ -1,0 +1,12 @@
+DROP DATABASE IF EXISTS orderdb;
+CREATE DATABASE orderdb;
+USE orderdb;
+#ALTER TABLE orders DROP FOREIGN KEY order_fk;
+DROP TABLE IF EXISTS address;
+DROP TABLE IF EXISTS hibernate_sequence;
+DROP TABLE IF EXISTS orders;
+CREATE TABLE address (id bigint NOT NULL, city varchar(255), country varchar(255), line1 varchar(255), line2 varchar(255), STATE varchar(255), PRIMARY KEY (id)) engine=InnoDB;
+CREATE TABLE hibernate_sequence (next_val bigint) engine=InnoDB;
+INSERT INTO hibernate_sequence VALUES ( 1 );
+CREATE TABLE orders (id bigint NOT NULL, order_date varchar(255), order_time varchar(255), status integer, delivery_address_id bigint, PRIMARY KEY (id)) engine=InnoDB;
+ALTER TABLE orders ADD CONSTRAINT order_fk FOREIGN KEY (delivery_address_id) REFERENCES address (id);

@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  billing_data_db:
+    container_name: billing-percona-db
+    platform: linux/x86_64
+    image: percona:ps-5.6
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=$ROOT_PASSWORD
+      - MYSQL_USER=$DB_USER
+      - MYSQL_PASSWORD=$DB_PASSWORD
+      - MYSQL_DATABASE=$MYSQLDB_BILLING_DATABASE
+      - MYSQL_ROOT_HOST="%"
+    ports:
+      - $MYSQLDB_BILLING_LOCAL_PORT:$MYSQLDB_BILLING_DOCKER_PORT
+    volumes:
+      - type: bind 
+        source: $BASE_LOC/$BILLING_MYSQL_DATA_LOC 
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
+      - type: bind
+        source: $BASE_LOC/$BILLING_INITIAL_SCRIPT_LOC
+        target: /docker-entrypoint-initdb.d/1.sql
+        volume:
+          nocopy: true
+  billing_web_app:
+      depends_on:
+        - billing_data_db
+      container_name: billing-web-app
+      build:
+        dockerfile: Dockerfile
+      restart: on-failure
+      env_file: ./.env
+      ports:
+        - $BILLING_WEB_LOCAL_PORT:$BILLING_DOCKER_WEB_PORT
+      environment:
+        SPRING_APPLICATION_JSON: '{
+              "spring.datasource.url": "$MYSQLDB_BILLING_URL",
+              "spring.datasource.username": "$DB_USER",
+              "spring.datasource.password": "$DB_PASSWORD",
+              "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
+              "spring.jpa.hibernate.ddl-auto": "$DDL_OPTION",
+              "spring.jpa.show-sql": "$SHOW_SQL"
+            }'
+      volumes:
+        - type: bind
+          source: $BASE_LOC/$BILLING_LOG_LOC
+          target: /opt/multimoduleprojects/restaurant/billing/logs
+          volume:
+            nocopy: true
+      stdin_open: true
+      tty: true
+
+ 

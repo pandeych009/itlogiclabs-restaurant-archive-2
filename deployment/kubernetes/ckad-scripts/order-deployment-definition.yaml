@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+    name: order-kube-deployment
+    namespace: ckad-test
+    labels:
+        app: order-kube-deployment-app
+        type: order-kube-test-backend
+spec: 
+    selector: 
+        matchLabels: 
+            app: order-kube-pod-app
+            type: order-test-api-pod
+    replicas: 1
+    strategy: 
+                 type: RollingUpdate
+    template: 
+        metadata: 
+            name: order-kube-pod
+            namespace: ckad-test
+            labels:
+                app: order-kube-pod-app
+                type: order-test-api-pod 
+        spec: 
+          containers:
+            - name: order-kube-pod
+              image: pandeych009/itlogiclab-restaurant-order-kube:1.0.1
+              imagePullPolicy: Always
+              
+              env: 
+               - name: MY_ENV_PROPS
+                 value: chandan
+              ports:
+                - name: http
+                  containerPort: 20001
+                  protocol: TCP
+              livenessProbe:
+                 httpGet: 
+                     path: /actuator/health
+                     port: 20001       
+                 initialDelaySeconds: 1800
+                 periodSeconds: 1800
+              readinessProbe:
+                 httpGet: 
+                      path: /actuator/health
+                      port: 20001
+                 initialDelaySeconds: 4
+                 periodSeconds: 4
+              resources: 
+                 limits: 
+                 #     cpu: "1"
+                      memory: "128Mi"     
+                 requests:   
+                  #    cpu: "1"
+                      memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata: 
+     name: order-kube-service
+     namespace: ckad-test
+spec:
+     selector: 
+          app: order-kube-pod-app
+          type: order-test-api-pod
+     type: NodePort
+     ports:
+          - targetPort: 20001  ## PORT OF POD: PORT ON WHICH APP IS RUNNING
+            port: 80  ## PORT OF SERVICE, DEFAULT 80. NEED TO CHECK HOW TO CHANGE IT.
+            nodePort: 30001 # PORT WHERE AOO IS ACCESSIBLE:  Range: 30000 to 32767
+     clusterIP: 10.101.102.101  # NEED TO CHECK WHAT IS THIS ???  

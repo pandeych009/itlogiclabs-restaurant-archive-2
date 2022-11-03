@@ -1,0 +1,60 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+    name:  billing
+    #namespace: restaurant-apps
+    labels: 
+       application: restaurant-app
+       app: restaurant-billing
+       type: billing-backend 
+
+spec: 
+    replicas: 1
+    #strategy:
+    selector: 
+        matchLabels: 
+            application: restaurant-app
+            app: restaurant-billing
+            type: billing-backend
+    template:
+       metadata: 
+          labels:
+             app: restaurant-billing
+             application: restaurant-app
+             type: billing-backend 
+       spec: 
+         containers:
+           - name: billing-container
+             image: itlogiclabs-restaurant-billing:1.0.0
+             imagePullPolicy: IfNotPresent 
+             resources: 
+                limits: 
+                   memory: "256Mi"
+                   cpu: "2"
+                requests: 
+                   memory: "128Mi"
+                   cpu: "1" 
+             env: 
+                - name: SPRING_DATASOURCE_URL
+                  valueFrom:
+                      secretKeyRef:
+                        name: mysql-db-url
+                        key: billing-url
+                - name: SPRING_DATASOURCE_USERNAME
+                  valueFrom:
+                      secretKeyRef:
+                        name: restaurant-app-secret
+                        key: username
+                - name: SPRING_DATASOURCE_PASSWORD
+                  valueFrom:
+                      secretKeyRef:
+                        name: restaurant-app-secret
+                        key: password
+                - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+                  value: com.mysql.cj.jdbc.Driver
+             ports: 
+                - name: httpport 
+                  containerPort: 20001
+                  protocol: TCP
+         imagePullSecrets: 
+          - name: regcred 
