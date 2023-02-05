@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: 
+  name: ckad-network-policy-example
+spec: 
+  podSelector: 
+     matchLabels: 
+       app: ckad-test-pod
+  policyTypes:
+    - Egress
+    - Ingress  
+   
+  ingress: 
+     - from: 
+         - podSelector: 
+              matchLabels: 
+                app: ckad-test-from-pod-v1
+         - ipBlock: 
+              cidr: 10.20.30.40/25
+              except: 
+                 - 10.20.30.40/32 
+         - podSelector: 
+              matchLabels: 
+                 app: ckad-test-from-pod-v2
+         - namespaceSelector: 
+              matchLabels: 
+                  app: ckad-test-from-namespace-1
+       ports:
+          - port: 40002
+  egress: 
+   - to: 
+      - podSelector: 
+          matchLabels: 
+           app: ckad-test-to-pod-v1
+     ports: 
+       - port: 50001

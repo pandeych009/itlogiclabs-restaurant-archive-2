@@ -59,6 +59,9 @@ public class OrderService {
 		return persistedRecord;
 	}
 	
+	/**
+	 * @return
+	 */
 	public List<OrderModal> get(){
 		logger.debug("Start Execution of getAll Order:");
 		List<OrderModal> modals = new ArrayList<OrderModal>();
@@ -69,6 +72,10 @@ public class OrderService {
 	}
 
 
+	/**
+	 * @param id
+	 * @return
+	 */
 	public OrderModal get(Long id){
 		logger.debug("Start Execution of get Order by orderId: {} :", id);
 		OrderEntity input = repos.findById(id).orElseThrow(RuntimeException::new);

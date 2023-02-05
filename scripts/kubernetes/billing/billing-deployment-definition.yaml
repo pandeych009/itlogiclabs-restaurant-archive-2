@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name:  billing
-    #namespace: restaurant-apps
+    namespace: restaurant-apps
     labels: 
        application: restaurant-app
        app: restaurant-billing

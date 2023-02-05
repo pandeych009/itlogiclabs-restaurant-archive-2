@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1 
+kind: Ingress
+metadata:
+    name: ingress-order-dummy-real
+    annotations: 
+       nginx.ingress.kubernetes.io/rewrite-target: /
+spec: 
+    rules:
+    - http: 
+        paths: 
+            - path: /billing
+              pathType: Prefix
+              backend: 
+                service: 
+                   name: billing-kube-service
+                   port: 
+                     number: 30002
+            - path: /order
+              pathType: Prefix
+              backend: 
+                service: 
+                    name: order-kube-service
+                    port: 
+                      number: 30001

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: order-config-map
+spec: 
+  data: 
+    mysql.properties | 
+      MYSQL_USER=cpandey
+      MYSQL_DATABASE=order

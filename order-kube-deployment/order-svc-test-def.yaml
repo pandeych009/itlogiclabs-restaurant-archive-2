@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata: 
+    name: order-k-svc
+spec: 
+    selector: 
+      app: order-k-pod-app
+      version: v1
+    type: NodePort                      
+    ports: 
+      - targetPort: 20002
+        nodePort: 30010
+        port: 8080
+    

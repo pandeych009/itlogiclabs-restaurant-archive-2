@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: order-pod-v1
+    labels: 
+        app: order-pod-v1-app
+spec: 
+    containers: 
+        - name: order-pod-v1
+          image: itlogiclab-restaurant-order:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports: 
+             - name: http
+               protocol: TCP
+               containerPort: 20001
+          env: 
+              - name: SPRING_DATASOURCE_URL
+                value: "jdbc:mysql://mysql-order-service:3306/orderdb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false"
+              - name: SPRING_DATASOURCE_USERNAME
+                value: cpandey
+              - name: SPRING_DATASOURCE_PASSWORD
+                value: chandan@1234
+             
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+     name: order-service-pod-v1
+spec:
+     selector: 
+          app: order-pod-v1-app
+     type: NodePort
+     ports:
+          - targetPort: 20001  ## PORT OF POD: PORT ON WHICH APP IS RUNNING
+            port: 80  ## PORT OF SERVICE, DEFAULT 80. NEED TO CHECK HOW TO CHANGE IT.
+            nodePort: 30002 # PORT WHERE AOO IS ACCESSIBLE:  Range: 30000 to 32767
+     clusterIP: 10.101.102.102  # NEED TO CHECK WHAT IS THIS ???    
+               

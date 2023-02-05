@@ -29,8 +29,8 @@ public class BillingApi {
 	private BillingService service;
 	
 	
-	@PutMapping(value="/create", produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<BillModal> createNewBill(@RequestBody BillModal modal){
+	@PutMapping(value="/add", produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<BillModal> add(@RequestBody BillModal modal){
 		try {
 			BillModal persisted = service.add(modal);
 			return ResponseEntity.ok(persisted);	
@@ -42,7 +42,7 @@ public class BillingApi {
 	
 	
 	@PostMapping(value="/update", produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> updateBill(@RequestBody BillModal modal){
+	public ResponseEntity<Object> upadte(@RequestBody BillModal modal){
 	
 		try {
 			BillModal persistedModal = service.update(modal);
@@ -55,7 +55,7 @@ public class BillingApi {
 	
 	
 	@GetMapping(value="/get", produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<BillModal>> getAll(){
+	public ResponseEntity<List<BillModal>> get(){
 		logger.debug("invoking getBills API : ");
 		try {
 			List<BillModal> persisted = service.getBills();

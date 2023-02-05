@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="BASE_LOG_LOC" value="/Users/cpandey/dev/restaurant/billing/logs" />
+    <property name="BASE_LOG_LOC" value="/opt/multimoduleprojects/restaurant/logs" />
     <property name="ARCHIVE_LOG_LOC" value="${BASE_LOG_LOC}/archived" />
     <property name="LOG_FILE_NAME" value="itlogiclab-restaurant-billing.log" />
     <property name="ARCHIVE_FILE_NAME" value="itlogiclab-restaurant-billing-%d{yyyy-MM-dd}.%i.log" />

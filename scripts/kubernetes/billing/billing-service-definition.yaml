@@ -5,11 +5,11 @@ metadata:
 spec:
     type: NodePort
     ports: 
-        - targetPort: 8080  ##POrt where the container is running (Port of the POD)  
-          port: 20003 #Port of the service
-          nodePort: 30001 #Port of the Node. Range: 30000 to 32767
+        - targetPort: 8080  #Port where the container is running (Port of the POD)  
+          port: 20003 		#Port of the service
+          nodePort: 30001 	#Port of the Node. Range: 30000 to 32767
     clusterIP: 10.101.102.101
-    selector: #Pods with the label will be targeted by this service. 
+    selector:               #Pods with the label will be targeted by this service. 
         app: restaurant-billing
         application: restaurant-app
         type: billing-backend

@@ -107,3 +107,5 @@ services:
             nocopy: true
       stdin_open: true
       tty: true   
+
+##docker pull mysql:5.7@sha256:b3b2703de646600b008cbb2de36b70b21e51e7e93a7fca450d2b08151658b2dd

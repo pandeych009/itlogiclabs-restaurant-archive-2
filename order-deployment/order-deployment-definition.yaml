@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+    name: order
+    labels:
+        app: order-app-deployment
+spec: 
+    replicas: 1
+    selector: 
+        matchLabels:
+            app: order-app-pod
+
+    template: 
+        metadata: 
+            name: order-pod
+            labels:  
+                app: order-app-pod
+        spec: 
+             containers:
+                  - name: order-pod
+                    image: pandeych009/itlogiclab-restaurant-order:1.0.1
+                    imagePullPolicy: IfNotPresent
+                    resources:   
+                        limits: 
+                            memory: "512Mi"
+                            cpu: "0.6"                                 
+                        requests:
+                            memory: "256Mi"
+                            cpu: "0.5"        
+                    livenessProbe: 
+                        httpGet: 
+                           path: /actuator/health/liveness
+                           port: 20001     
+                        initialDelaySeconds: 4
+                        periodSeconds: 2
+                    readinessProbe: 
+                         httpGet: 
+                            path: /actuator/health/readinessProbe
+                            port: 20001
+                         initialDelaySeconds: 4
+                         periodSeconds: 3    
+                    env:
+                      - name: SPRING_DATASOURCE_URL
+                        value: 'jdbc:mariadb://mariadb-order-service:3306/orderdb'
+
+                      - name: SPRING_DATASOURCE_USERNAME
+                        value: cpandey
+
+                      - name: SPRING_DATASOURCE_PASSWORD
+                        value: chandan@1234
+
+                      - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+                        value: org.mariadb.jdbc.Driver                                            
+                                                                           
+                    ports: 
+                       - name: httpport
+                         containerPort: 20001 
+                         protocol:  TCP
+---
+apiVersion: v1
+kind: Service
+metadata: 
+    name: order-service
+spec: 
+    selector: 
+        app: order-app-pod
+    type: NodePort                      
+    ports: 
+        - targetPort: 8080
+          port: 20001
+          nodePort: 310001
+    

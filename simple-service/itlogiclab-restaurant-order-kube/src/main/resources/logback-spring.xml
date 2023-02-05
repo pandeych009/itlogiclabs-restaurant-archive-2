@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="BASE_LOG_LOC" value="/Users/cpandey/logs/multimoduleprojects/restaurant/logs" />
+    <property name="BASE_LOG_LOC" value="/opt/multimoduleprojects/restaurant/logs" />
     <property name="ARCHIVE_LOG_LOC" value="${BASE_LOG_LOC}/archived" />
-    <property name="LOG_FILE_NAME" value="itlogiclab-restaurant-order.log" />
-    <property name="ARCHIVE_FILE_NAME" value="itlogiclab-restaurant-order-%d{yyyy-MM-dd}.%i.log" />
+    <property name="LOG_FILE_NAME" value="itlogiclab-restaurant-order-kube.log" />
+    <property name="ARCHIVE_FILE_NAME" value="itlogiclab-restaurant-order-kube-%d{yyyy-MM-dd}.%i.log" />
     
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -36,13 +36,11 @@
     <!-- LOG "com.baeldung*" at TRACE level -->
     <logger name="com.itlogiclab.order" level="DEBUG" additivity="false">
         <appender-ref ref="RollingFile" />
-        <!-- <appender-ref ref="Console" /> -->
         <appender-ref ref="Console" />
     </logger>
        
     <logger name="org.springframework" level="INFO" additivity="false">
         <appender-ref ref="RollingFile" />
-        <!-- <appender-ref ref="Console" /> -->
         <appender-ref ref="Console" />
     </logger>   
     

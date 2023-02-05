@@ -8,7 +8,7 @@ RUN mkdir -p /opt/app/logs/archived
 RUN ls -ltr /opt/app/
 RUN pwd
 
-COPY target/itlogiclabs-restaurant-order-*.jar order-kube.jar
+COPY target/itlogiclab-restaurant-order-*.jar order-kube.jar
 RUN ls -ltr /opt/app/
 
 RUN mkdir -p /opt/multimoduleprojects/restaurant/logs

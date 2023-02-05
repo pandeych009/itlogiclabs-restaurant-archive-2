@@ -26,7 +26,7 @@ private static Logger logger = LogManager.getLogger(OrderService.class);
 	 * @param modal
 	 * @return
 	 */
-	public OrderModal createOrder(OrderModal modal) {
+	public OrderModal add(OrderModal modal) {
 		logger.debug("Start Execution of New Order Creation:");
 		OrderModal persistedRecord = null; 
 		if(Objects.isNull(modal.getOrderId()) || modal.getOrderId() == 0){
@@ -44,7 +44,7 @@ private static Logger logger = LogManager.getLogger(OrderService.class);
 	 * @param modal
 	 * @return
 	 */
-	public OrderModal updateOrder(final OrderModal modal) {
+	public OrderModal update(final OrderModal modal) {
 		logger.debug("Start Execution of update Order:");
 		logger.debug("Order update is in process");
 		long random = ThreadLocalRandom.current().nextLong(1, 100);
@@ -53,7 +53,7 @@ private static Logger logger = LogManager.getLogger(OrderService.class);
 		return persistedRecord;
 	}
 	
-	public List<OrderModal> getAllOrder(){
+	public List<OrderModal> get(){
 		logger.debug("Start Execution of getAll Order:");
 		List<OrderModal> modals = new ArrayList<OrderModal>();
 		for(int index=0;index < 10;index++) {
@@ -63,7 +63,7 @@ private static Logger logger = LogManager.getLogger(OrderService.class);
 	}
 
 
-	public OrderModal getOrder(Long id){
+	public OrderModal get(Long id){
 		logger.debug("Start Execution of get Order by orderId: {} :", id);
 		return populator.populateOrderModal(id);
 	}

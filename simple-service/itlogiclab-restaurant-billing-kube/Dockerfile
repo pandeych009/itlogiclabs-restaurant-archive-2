@@ -5,7 +5,7 @@ FROM openjdk:8-jdk-alpine
 WORKDIR /opt/app
 
 #Copy the itlogiclabs-restaurant-billing.jar from local system to container
-COPY target/itlogiclabs-restaurant-billing-*.jar billing-app.jar
+COPY target/itlogiclab-restaurant-billing-*.jar billing-app.jar
 
 #Execute command ls -ltr <DIR> on the container
 RUN ls -ltr /opt/app/

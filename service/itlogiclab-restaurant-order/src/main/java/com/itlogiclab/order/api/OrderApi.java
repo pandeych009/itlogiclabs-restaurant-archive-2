@@ -29,7 +29,6 @@ public class OrderApi {
 	@Autowired
 	private OrderService orderService;
 	
-	
 	@PutMapping(value="/add", produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<OrderModal> createNewOrder(@RequestBody OrderModal modal){
 		try {

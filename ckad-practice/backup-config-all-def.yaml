@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: 
+  name: ckad-network-policy
+spec: 
+  podSelector: ##Pod to which this network policy apply to. 
+    matchLabels: 
+      app: frontEnd
+  
+  policyTypes: 
+    - Egress
+    - Ingress
+  egress: 
+    - to : # OR Rule applied using pod Selectors: 
+        - podSelector: 
+            matchLabels: 
+              app: ckad-test-pod
+          
+          namespaceSelector: 
+           matchLabels: 
+             app: AND-Condition
+   
+            
+        - podSelector:
+            matchLabels: 
+              app: OR-condition
+
+        - ipBlock:  
+           cidr: 10.30.40.100/24
+           except: 
+             - 10.30.40.101/32
+
+        - namespaceSelector: #select perticuler namespace
+            matchLabels:
+              app: my-namespace
+
+      ports: 
+        - port: 10001  
+  ingress:  
+   - from: 
+     - podSelector: 
+        matchLabels: 
+          app: ckad-test-pod
+     - ipBlock: 
+        cidr: 10.20.30.40/10
+     ports: 
+        - port: 10002 
+           

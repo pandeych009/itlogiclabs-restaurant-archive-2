@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: 
+  name: pvc-challange
+spec: 
+  storageClassName: standard
+  accessModes: ReadWriteMany
+  resources:
+    requests: 
+      memory: "1Gi" 

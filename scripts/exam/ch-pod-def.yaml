@@ -1,0 +1,156 @@
+apiVerison: v1
+kind: Pod
+metadata: 
+ name: jekyll
+ namespace: development
+spec: 
+  initContainers: 
+     - name: copy-jekyll-site
+       image: busybox:1.2.8
+       command: [ "jekyll", "new", "/site" ]
+       volumeMount: 
+        - name: site
+          mountPath: "/site"
+  containers: 
+    - name: jekyll
+      image: kodekloud/jekyll-serve
+      volumeMount: 
+        - name: site
+          persistenceVolumeClaim: 
+              claimName: jekyll-site
+---
+apiVerison: v1
+kind: PersistentVolumeClaim
+metadata: 
+  name: jekyll-site
+  namespace: development
+accessModes: 
+  - ReadWriteMany
+resources: 
+  request: 
+     memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata: 
+    name: jekyll
+    namespace: development
+spec: 
+  type: NodePort
+  ports: 
+    - targetPort: 4000
+      port: 8080
+      nodePort: 30097
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: 
+  name: developer-role
+  namespace: development
+rules: 
+  - apiVersion: [""]
+    resources: 
+      - Services
+      - PersistentVolumeClaim
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: 
+  name: developer-rolebinding
+  namespace: developer
+roleRef: 
+  - name: developer-role
+    kind: Role
+    group: rbac.authorization.k8s.io 
+subjects: 
+  - name: martin
+    kind: User
+    group: rbac.authorization.k8s.io
+---
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: jekyll
+ namespace: development
+ labels:
+   run: jekyll
+spec:
+  initContainers:
+     - name: copy-jekyll-site
+       image: kodekloud/jekyll
+       command: [ "jekyll", "new", "/site" ]
+       volumeMounts:
+        - name: site
+          mountPath: "/site"
+  containers:
+    - name: jekyll
+      image: kodekloud/jekyll-serve
+      volumeMounts:
+        - name: site
+          mountPath: "/site"
+  volumes:
+    - name: site
+      persistentVolumeClaim:
+        claimName: jekyll-site
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jekyll-site
+  namespace: development
+spec:
+ accessModes:
+  - ReadWriteMany
+ resources:
+  requests:
+     storage: "1Gi"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: jekyll
+    namespace: development
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 4000
+      port: 8080
+      nodePort: 30097
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: developer-role
+  namespace: development
+rules:
+  - apiGroups: [""]
+    resources:
+      - "services"
+      - "persistentvolumeclaims"
+      - "pods"
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: developer-rolebinding
+  namespace: development
+roleRef:
+   name: developer-role
+   kind: Role
+   apiGroup: rbac.authorization.k8s.io
+subjects:
+  - name: martin
+    kind: User
+    apiGroup: rbac.authorization.k8s.io
+
+  
+   
+      
+ 

@@ -1,0 +1,32 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-02-02T07:34:57Z"
+  name: order-kube-service
+  namespace: default
+  resourceVersion: "281720"
+  uid: 04d06c2e-09b2-450b-b2d3-96d6257e2ae9
+spec:
+  clusterIP: 10.109.151.197
+  clusterIPs:
+  - 10.109.151.197
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - nodePort: 30002
+    port: 80
+    protocol: TCP
+    targetPort: 20001
+  selector:
+    app: order-app-kube-pod
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}

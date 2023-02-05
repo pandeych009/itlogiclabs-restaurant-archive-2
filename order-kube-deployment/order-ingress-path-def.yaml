@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+   name: order-kube-ingress
+spec: 
+   rules:
+    - http: 
+       paths: 
+       - path: /orderkube
+         pathType: Prefix
+         backend: 
+           service: 
+              name: order-k-svc
+              port: 
+                number: 30010
+       - path: /kubeorder
+         pathType: Prefix
+         backend: 
+           service: 
+               name: order-k-svc
+               port: 
+                 number: 30010
+  

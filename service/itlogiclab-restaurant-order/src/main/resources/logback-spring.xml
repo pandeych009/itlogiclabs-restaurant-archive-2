@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="BASE_LOG_LOC" value="/opt/multimoduleprojects/restaurant/logs" />
+     <property name="BASE_LOG_LOC" value="/opt/multimoduleprojects/restaurant/logs" />
+    
+    <!--<property name="BASE_LOG_LOC" value="/Users/cpandey/dev/docker-data/restaurant/order/logs/" /> -->
     <property name="ARCHIVE_LOG_LOC" value="${BASE_LOG_LOC}/archived" />
     <property name="LOG_FILE_NAME" value="itlogiclabs-restaurant-order.log" />
     <property name="ARCHIVE_FILE_NAME" value="itlogiclabs-restaurant-order-%d{yyyy-MM-dd}.%i.log" />
@@ -39,7 +41,7 @@
         <!-- <appender-ref ref="Console" /> -->
     </logger>
     
-    <logger name="com.mysql.jdbc.Driver" level="DEBUG" additivity="false">
+    <logger name="org.mariadb.jdbc" level="DEBUG" additivity="false">
         <appender-ref ref="RollingFile" />
         <!-- <appender-ref ref="Console" /> -->
     </logger>

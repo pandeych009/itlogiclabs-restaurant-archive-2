@@ -1,0 +1,25 @@
+apiVersion: apps/v1 
+kind: pod
+metadata: 
+   name: mysql-data-order
+   labels:
+     app: mysql-db-order
+     type: database 
+spec:  
+   containers: 
+      - name: mysql-container
+        image: mysql:5.7
+        imagePullPolicy: IfNotPresent 
+        env: 
+         - name: MYSQL_ROOT_PASSWORD
+           value: 
+
+         - name: MYSQL_USER
+           value:
+ 
+         - name: MYSQL_PASSWORD
+           value: 
+
+         - name: MYSQL_DATABASE
+           value:            
+   

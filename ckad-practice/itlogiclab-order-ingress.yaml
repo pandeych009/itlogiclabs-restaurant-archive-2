@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+  name: path-based-routing-ingress
+spec:
+  rules:  
+    - http:
+       paths: 
+         - path: /billing
+           pathTypes: Prefix
+           backend: 
+             service: 
+               name: routing-service
+               port: 
+                 number: 50001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+  name: host-based-routing-ingress
+spec: 
+  rules: 
+  - host: 
+    http:  
+     paths: 
+        - backend: 
+          service:
+            name: 
+            port: 
+             number:      
+  - host: 
+     http: 
+      paths: 
+        - backend: 
+           service: 
+              name: 
+              port:
+              
+      

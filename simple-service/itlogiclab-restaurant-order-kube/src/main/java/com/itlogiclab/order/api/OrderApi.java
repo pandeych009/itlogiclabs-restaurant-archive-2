@@ -24,16 +24,15 @@ import com.itlogiclab.order.service.OrderService;
 @RequestMapping("/order/kube/api/")
 public class OrderApi {
 	
-	private static Logger logger = LogManager.getLogger(OrderApi.class);
+private static Logger logger = LogManager.getLogger(OrderApi.class);
 	
 	@Autowired
 	private OrderService orderService;
 	
-	
-	@PutMapping(value="/createOrder", produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
+	@PutMapping(value="/add", produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<OrderModal> createNewOrder(@RequestBody OrderModal modal){
 		try {
-			OrderModal persisted = orderService.createOrder(modal);
+			OrderModal persisted = orderService.add(modal);
 			return ResponseEntity.ok(persisted);	
 		} catch (RuntimeException e) {
 			logger.error("Error occured while creating new order: "+e.getMessage());
@@ -41,10 +40,10 @@ public class OrderApi {
 		}
 	}
 	
-	@PostMapping(value="/updateOrder", produces=MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value="/update", produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<OrderModal> updateOrder(@RequestBody OrderModal order){
 		try {
-			OrderModal persisted = orderService.updateOrder(order);
+			OrderModal persisted = orderService.update(order);
 			return ResponseEntity.ok(persisted);	
 		} catch (RuntimeException e) {
 			logger.error("Error occured while update the order: order id {} : ", order.getOrderId() +e.getMessage());
@@ -52,10 +51,10 @@ public class OrderApi {
 		}
 	}
 	
-	@GetMapping(value="/getAllOrder", produces=MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value="/get", produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<OrderModal>> getAllOrder(){
 		try {
-			List<OrderModal> persisted =   orderService.getAllOrder();
+			List<OrderModal> persisted =   orderService.get();
 			return ResponseEntity.ok(persisted);	
 		} catch (RuntimeException e) {
 			logger.error("Error occured while fetching all orders from DB: "+e.getMessage());
@@ -64,10 +63,10 @@ public class OrderApi {
 		}
 	}
 	
-	@GetMapping(value="/getOrder/{id}", produces=MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value="/get/{id}", produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<OrderModal> getOrder(@PathVariable Long id){
-		try {
-			OrderModal persisted =   orderService.getOrder(id);
+			try {
+			OrderModal persisted =   orderService.get(id);
 			return ResponseEntity.ok(persisted);	
 		} catch (RuntimeException e) {
 			logger.error("Error occured while fetching order with id {} from DB: ",id +e.getMessage());

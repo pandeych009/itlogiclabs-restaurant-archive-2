@@ -20,22 +20,22 @@ spec:
         spec: 
              containers:
                   - name: order-pod
-                    image: itlogiclabs-restaurant-order:1.0.0
+                    image: pandeych009/itlogiclab-restaurant-order:1.0.1
                     imagePullPolicy: IfNotPresent
                     resources:   
                         limits: 
-                            memory: "128Mi"
-                            cpu: "1"                                 
+                            memory: "512Mi"
+                            cpu: "0.6"                                 
                         requests:
-                            memory: "128Mi"
-                            cpu: "1"            
+                            memory: "256Mi"
+                            cpu: "0.5"            
                     env:
                       - name: SPRING_DATASOURCE_URL
-                        #value: 'jdbc:mysql://mysql-order-service:3306/orderdb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false'
-                        valueFrom: 
-                          secretKeyRef: 
-                              name: mysql-db-url
-                              key:  order-url
+                        value: 'jdbc:mariadb://mysql-order-service:3306/orderdb'
+                        #valueFrom: 
+                         # secretKeyRef: 
+                          #    name: mysql-db-url
+                           #   key:  order-url
                       - name: SPRING_DATASOURCE_USERNAME
                         valueFrom: 
                           secretKeyRef: 
@@ -47,7 +47,7 @@ spec:
                                name: restaurant-app-secret
                                key: password
                       - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-                        value: com.mysql.cj.jdbc.Driver                                             
+                        value: org.mariadb.jdbc.Driver                                            
                                                                            
                     ports: 
                        - name: httpport

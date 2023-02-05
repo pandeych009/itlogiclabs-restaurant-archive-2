@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+    name: order-k
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: order-k-pod-app
+      version: v1
+  template: 
+    metadata: 
+      name: order-kube-pod
+      labels:
+         app: order-k-pod-app
+         version: v1
+    spec: 
+      containers:
+         - name: order-kube-pod
+           image: pandeych009/itlogiclab-restaurant-order-kube:2.0.3@sha256:b59f744ec67a008adce481bf160cffaccfd10cf6aa830819ed6f547a71793511
+           imagePullPolicy: IfNotPresent
+           ports: 
+             - name: httpport
+               containerPort: 20002
+               protocol:  TCP
+           tolerations:
+              - key: "app"
+                operator: "Equals"
+                value: "blue"
+                effect: "PreferNoSchedule" #NoSchedule, PreferNoSchedule, NoExecute

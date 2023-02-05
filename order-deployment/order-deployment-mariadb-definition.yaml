@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: Service
+metadata: 
+    name: mariadb-order-service
+    labels: ##Labels that will be applied to the resource
+        app: mariadb-order-service-app
+spec: 
+    ports: 
+      - port: 3306
+        targetPort: 3306
+    clusterIP: None  #This is also termed as Headless service, where ClusterId is NOne...
+    selector:  ##SELECT ANY POD WITH LABEL mariadb-app AND OPTIONAL TIER
+        app: mariadb-order-pod-app
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata: 
+    name: mariadb-order-pv
+    labels: 
+       app: mariadb-order-pv-app 
+spec: 
+    storageClassName: standard
+    capacity: 
+        storage: 256Mi
+    accessModes: 
+        - ReadWriteOnce
+    hostPath: 
+        path: "/Users/cpandey/dev/docker-data/restaurant/k8/mariadb-order" #LOCAL PATH TO THE SYSTEM 
+    persistentVolumeReclaimPolicy: Retain
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: 
+    name: mariadb-order-pvc
+    labels: 
+       app: mariadb-order-pvc-app
+    
+spec: 
+    storageClassName: standard
+    accessModes:
+        - ReadWriteOnce
+    resources: 
+        requests:
+           storage: 250Mi 
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+    name: mariadb-order-init-script
+data:
+    init-script.sql:  |
+        CREATE DATABASE IF NOT EXISTS orderdb;
+        USE orderdb;
+        CREATE TABLE address (id BIGINT NOT NULL, city VARCHAR(255), country VARCHAR(255), line1 VARCHAR(255), line2 VARCHAR(255), STATE VARCHAR(255), PRIMARY KEY (id)) engine=InnoDB;
+        CREATE TABLE hibernate_sequence (next_val BIGINT) engine=InnoDB;
+        INSERT INTO hibernate_sequence VALUES ( 1 );
+        CREATE TABLE orders (id BIGINT NOT NULL, order_date VARCHAR(255), order_time VARCHAR(255), status INTEGER, delivery_address_id BIGINT, PRIMARY KEY (id)) engine=InnoDB;
+        ALTER TABLE orders ADD CONSTRAINT order_fk FOREIGN KEY (delivery_address_id) REFERENCES address (id);
+         
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+    name: mariadb-order-server
+    labels:   
+        app: mariadb-order-server-app
+spec: 
+    selector: 
+        matchLabels:
+            app: mariadb-order-app-pod
+
+    serviceName: mariadb-h  #Headless Service Name #Master DNS Become: mariadb-0.mariadb-h.default.svc.cluster.local, mariadb-1.mariadb-h.default.svccluster.lcoal
+    replicas: 1
+    template: 
+        metadata: 
+            name: mariadb-order-pod
+            labels: 
+                app: mariadb-order-app-pod
+        spec: 
+            containers: 
+                - name: mariadb-container
+
+                  image:  mariadb:10.5.8
+
+                  imagePullPolicy: IfNotPresent
+
+                  args:
+                    - "--ignore-db-dir=lost+found"
+
+                  ports:
+                    - containerPort: 3306
+
+                  env:
+                    - name: MYSQL_ROOT_PASSWORD
+                      value: root
+
+                    - name: MYSQL_USER
+                      value: chandan
+
+                    - name: MYSQL_PASSWORD
+                      value: chandan@1234
+
+                    - name: MYSQL_DATABASE
+                      value: orderdb
+
+                  volumeMounts: 
+                    - name: mariadb-initdb ##MOUNT PATH FOR INITIAL SCRIPT TO RUN ON DB
+                      mountPath: /docker-entrypoint-initdb.d
+
+                    - name: mariadb-server-storage
+                      mountPath: /var/lib/mariadb
+
+            volumes:
+                - name: mariadb-initdb
+                  configMap: 
+                    name: mariadb-order-init-script  
+    
+                - name: mariadb-server-storage
+                  persistentVolumeClaim: 
+                      claimName:  mariadb-order-pvc
+
+ 
+##DNS Entry {Headless Ref} is created only in 2 condition: 
+# spec section of the POD have 2 optional conf: subdomain, which shouldbe equal to name of service (mariadb-h). It create subdomain: mariadb-h.default.svc.cluster.lcoal
+##StatefulSet does not require the above condition. 
+## second: define hostname: as mariadb-pod
+

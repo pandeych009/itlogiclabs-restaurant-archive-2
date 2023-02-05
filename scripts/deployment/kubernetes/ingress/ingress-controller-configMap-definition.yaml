@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+    name: ingress-config
+    labels: 
+        app: ingress-config
+
+##https://platform9.com/blog/ultimate-guide-to-kubernetes-ingress-controllers/
+

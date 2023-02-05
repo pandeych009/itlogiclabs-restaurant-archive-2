@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: pod
+metadata: 
+  name: jekyll
+  namespace:
+  labels:
+     app:
+     type: 
+spec: 
+   volumes: ## Declaration of the volume
+     - name: ephmeral-volume-1
+       emptyDir: {}
+     - name: durable-volume-1
+       hostPath: 
+         path:  "/Users/cpandey/dev/docker-data/ckad-practice/mount/challange/path"
+
+     - name: durable-volume-2
+       persistentVolumeClaim: 
+          claimName: pvc-challange
+
+     - name: durable-volume-3
+       awsElasticBlockStore:
+         
+     - name: durable-volume-4
+       azureDisk: 
+
+   containers:
+      - name: jekyll
+        image: busybox:1.2.28
+        command: ["sh", "ls", "-ltr"]
+   initContainers:   
+      - name: copy-jekyll-site
+        image: busybox:1.2.28
+        command: ["sh", "-c", "echo this is the initContainer running first time"]
+        volumeMount: 
+           - name: durable-volume-1
+             mountPath: /app  
