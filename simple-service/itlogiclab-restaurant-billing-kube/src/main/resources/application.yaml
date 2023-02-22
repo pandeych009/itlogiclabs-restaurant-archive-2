@@ -1,0 +1,8 @@
+server:
+ port: ${PORT:20002}
+ contextPath: /billing
+
+management: 
+  health: 
+    probes: 
+      enabled: true
